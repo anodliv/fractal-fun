@@ -1,27 +1,22 @@
-int mx, my;
-float xs, xl;
-float ys, yl;
-float xStep, yStep;
-int k = 126;
+int k = 60;
 Complex initC;
-Complex z;
 color[] colors;
+JuliaFractal jf;
 void setup()
 {
-  mx = 1500; my = 900;
-  xs = -1.0; xl = 1.0;
-  ys = -1.0; yl = 1.0;
-  xStep = (xl-xs)/mx;
-  yStep = (yl-ys)/my;
-  initC = new Complex(-0.8,0.156);
-  z = new Complex();  
+  int mx = 1200;
+  int my = 900;
+  initC = new Complex(0.4,0.156);
   surface.setSize(mx,my);
   background(255);
   colors = new color[k+1];
   for(int i =0;i<=k;i++) {
     colors[i] = color(random(0,255),random(0,255),random(0,255));
   }
+  colorMode(HSB, k, 100,100);
   smooth();
+  jf = new JuliaFractal(mx,my,-1,1,-1,1,initC);
+  
 }
 
 color getcolor(int seed) {
@@ -30,28 +25,43 @@ color getcolor(int seed) {
 
 void draw() {
   
-  for(int i = 0; i< mx; i++) {
-    for(int j =0; j< my; j++) {
-      z.r = xs + i*xStep;
-      z.i = ys + j*yStep;
-      int ik;
-      for(ik = 0; ik < k; ik++) {
-        if(z.length() > 3) break;
-        else {
-          z = z.multiply(z).add(initC);
-        }
-      }
-      //stroke(ik);
-      //stroke(colors[ik]);
-      stroke(getcolor(ik));
-      point(i,j);
-    }
-  }
+  jf.draw();
   noLoop();
 }
 
 void keyPressed() {
 
+}
+
+class JuliaFractal {
+  protected int width, height;
+  protected float xs,xl,ys,yl;
+  protected Complex initC;
+  
+  public JuliaFractal(int wid, int hgt, float xmin, float xmax, float ymin, float ymax, Complex c) {
+    width = wid; height = hgt; xs = xmin; xl = xmax; ys = ymin; yl = ymax; initC = c;
+  }
+  public void draw() {
+    Complex z = new Complex();
+    float xStep = (xl-xs)/width;
+    float yStep = (yl-ys)/height;
+    for(int i = 0; i< width; i++) {
+      for(int j =0; j< height; j++) {
+        z.r = xs + i*xStep;
+        z.i = ys + j*yStep;
+        int ik;
+        for(ik = 0; ik < k; ik++) {
+          if(z.length() > 3) break;
+          else {
+            z = z.multiply(z).add(initC);
+          }
+        }
+        stroke(color(ik,80,95));
+        point(i,j);
+      }
+    }
+  
+  }
 }
 
 class Complex {
