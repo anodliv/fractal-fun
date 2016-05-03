@@ -1,12 +1,17 @@
 int k = 60;
-Complex initC;
+Complex initC, initC2;
 color[] colors;
-JuliaFractal jf;
+JuliaFractal jf, jf2;
 void setup()
 {
   int mx = 1200;
-  int my = 900;
-  initC = new Complex(0.4,0.156);
+  int my = 600;
+  initC = new Complex(-0.01,1);
+  initC2 = new Complex(-1.485, 1.156);
+  
+  jf = new JuliaFractal(mx/2,my,-1.5,1.5,-1,1,initC);
+  jf2 = new JuliaFractal(mx/2,my,-1.5,1.5,-1,1,initC2);
+
   surface.setSize(mx,my);
   background(255);
   colors = new color[k+1];
@@ -15,8 +20,7 @@ void setup()
   }
   colorMode(HSB, k, 100,100);
   smooth();
-  jf = new JuliaFractal(mx,my,-1,1,-1,1,initC);
-  
+ 
 }
 
 color getcolor(int seed) {
@@ -26,6 +30,8 @@ color getcolor(int seed) {
 void draw() {
   
   jf.draw();
+  translate(600,0);
+  jf2.draw();
   noLoop();
 }
 
