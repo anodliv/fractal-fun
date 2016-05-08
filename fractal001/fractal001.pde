@@ -4,7 +4,9 @@ int mouseStartX, mouseStartY;
 int mouseEndX, mouseEndY;
 int mx = 1280;
 int my = 960;
+int nk = 200;
 int iMode = 0; //0: julia, 1: mandelbrot
+int iColorMode = 0; // 0: sequential, 1: random
 boolean bJuliaReady = false, bMandelReady = false;
 PGraphics pgJulia, pgMandel;
 JuliaFractal jf, jf2;
@@ -12,18 +14,17 @@ MandelbrotFractal mf;
 
 void setup()
 {
-  int escapeTime = 100;
   initC = new Complex(random(-1,1),random(-1,1));
   
-  jf = new JuliaFractal(mx,my,-1.5,1.5,-1.2,1.2, escapeTime, initC);
-  mf = new MandelbrotFractal(mx,my,-2.3, 1.0,-1.3,1.3, escapeTime, 500);
+  jf = new JuliaFractal(mx,my,-1.5,1.5,-1.2,1.2, nk, initC);
+  mf = new MandelbrotFractal(mx,my,-2.3, 1.0,-1.3,1.3, nk, 500);
 
   surface.setSize(mx,my);
-  //colors = new color[escapeTime+1];
-  //for(int i =0;i<=escapeTime;i++) {
-  //  colors[i] = color(random(0,255),random(0,255),random(0,255));
-  //}
-  colorMode(HSB, escapeTime, 100,100);
+  colorMode(HSB, nk, 100,100);
+  colors = new color[nk+1];
+  for(int i =0;i<=nk;i++) {
+   colors[i] = color(random(0,nk),random(0,100),random(0,100));
+  }
   smooth();
   rectMode(CORNERS);
   pgJulia = createGraphics(mx,my);
@@ -57,6 +58,10 @@ void keyPressed() {
     iMode = 0;
   } else if(key== 'm' || key=='M') {
     iMode = 1;
+  } else if(key == '1') {
+    iColorMode = 0;
+  } else if (key == '2') {
+    iColorMode = 1;
   } else if (key == 'r' || key == 'R') {
     // preventing re-enter-draw, only one draw at a time
     if(bJuliaReady && iMode == 0) {
@@ -104,8 +109,8 @@ void mouseReleased() {
 
 class MandelbrotFractal extends JuliaFractal
 {
-  protected float em;
-  public MandelbrotFractal(int wid, int hgt, float xmin, float xmax, float ymin, float ymax, int escapeTime, float escapeRadius) {
+  protected double em;
+  public MandelbrotFractal(int wid, int hgt, double xmin, double xmax, double ymin, double ymax, int escapeTime, double escapeRadius) {
     super(wid,hgt,xmin,xmax, ymin,ymax, escapeTime, new Complex());
     em = escapeRadius;
   }
@@ -117,8 +122,8 @@ class MandelbrotFractal extends JuliaFractal
     }
     Complex z = new Complex();
     Complex ct = new Complex();
-    float xStep = (xl-xs)/width;
-    float yStep = (yl-ys)/height;
+    double xStep = (xl-xs)/width;
+    double yStep = (yl-ys)/height;
     for(int i = 0; i< width; i++) {
       for(int j =0; j< height; j++) {
         z.r = xs + i*xStep;
@@ -132,10 +137,10 @@ class MandelbrotFractal extends JuliaFractal
           }
         }
         if (pg != null) { 
-          pg.stroke(color(ik,80,95));
+          pg.stroke(getColor(ik));
           pg.point(i,j);
         } else {
-          stroke(color(ik,80,95));
+          stroke(getColor(ik));
           point(i,j);
         }
       }
@@ -159,17 +164,17 @@ class MandelbrotFractal extends JuliaFractal
 
 class JuliaFractal {
   protected int width, height;
-  protected float xs,xl,ys,yl;
+  protected double xs,xl,ys,yl;
   protected Complex initC;
   protected int ek;
   // original values for reset zoom
   protected Complex oInitC;
-  protected float oxs,oxl,oys,oyl;
+  protected double oxs,oxl,oys,oyl;
   
   
   protected JuliaFractal() {}
   
-  public JuliaFractal(int wid, int hgt, float xmin, float xmax, float ymin, float ymax, int escapeTime, Complex c) {
+  public JuliaFractal(int wid, int hgt, double xmin, double xmax, double ymin, double ymax, int escapeTime, Complex c) {
     width = wid; height = hgt; xs = xmin; xl = xmax; ys = ymin; yl = ymax; initC = c; ek = escapeTime;
     oxs = xs; oxl = xl; oys = ys; oyl = yl;
     oInitC = initC;
@@ -184,12 +189,12 @@ class JuliaFractal {
   
   // set the new viewport, for zoom in
   public void setViewPort(int wxs, int wxm, int wys, int wym) {
-    float xStep = (xl-xs)/width;
-    float yStep = (yl-ys)/height;
-    float nxs = xs + wxs * xStep;
-    float nys = ys + wys * yStep;
-    float nxm = xs + wxm * xStep;
-    float nym = ys + wym * yStep;
+    double xStep = (xl-xs)/width;
+    double yStep = (yl-ys)/height;
+    double nxs = xs + wxs * xStep;
+    double nys = ys + wys * yStep;
+    double nxm = xs + wxm * xStep;
+    double nym = ys + wym * yStep;
     xs = nxs; ys = nys; xl = nxm; yl = nym;
     print("\n new viewport:" + xs + "," + ys + "," + xl + "," + yl);
   }
@@ -199,8 +204,8 @@ class JuliaFractal {
       pg.background(0);
     }
     Complex z = new Complex();
-    float xStep = (xl-xs)/width;
-    float yStep = (yl-ys)/height;
+    double xStep = (xl-xs)/width;
+    double yStep = (yl-ys)/height;
     for(int i = 0; i< width; i++) {
       for(int j =0; j< height; j++) {
         z.set(xs + i*xStep,ys + j*yStep);
@@ -212,10 +217,10 @@ class JuliaFractal {
           }
         }
         if (pg != null) { 
-          pg.stroke(color(ik,80,95));
+          pg.stroke(getColor(ik));
           pg.point(i,j);
         } else {
-          stroke(color(ik,80,95));
+          stroke(getColor(ik));
           point(i,j);
         }
       }
@@ -232,17 +237,22 @@ class JuliaFractal {
     }
     return true;
   }
+  
+  protected color getColor(int index) {
+    if (iColorMode == 1) return colors[index];
+    return color(index, 70,90);
+  }
 }
 
 class Complex {
-  public float r;
-  public float i;
+  public double r;
+  public double i;
   
   public Complex() {
     r = 0; i = 0;
   }
   
-  public Complex(float real, float impl) {
+  public Complex(double real, double impl) {
     r = real; i = impl;
   }
   
@@ -264,12 +274,12 @@ class Complex {
     return c;
   }
 
-  public void set(float real, float impl) {
+  public void set(double real, double impl) {
     r = real; i = impl;
   }
   
-  public float length() {
-    return sqrt(r*r + i*i);
+  public double length() {
+    return sqrt((float)(r*r + i*i));
   }
   
   public String toString() {
