@@ -107,6 +107,17 @@ void mouseReleased() {
   mouseStartX = mouseStartY = mouseEndX = mouseEndY = 0;
 }
 
+class KochFractal extends Fractal {
+  protected Point2D sp; // start point
+  protected Point2D ep; // end point
+  protected float alpha; // the angle
+  protected float stop; // the stop point
+  protected KochFractal() {
+  }
+  public KochFractal(Point2D ptStart, Point2D ptEnd, float angle, float stopSize) {
+  }
+}
+
 class MandelbrotFractal extends JuliaFractal
 {
   protected double em;
@@ -162,8 +173,7 @@ class MandelbrotFractal extends JuliaFractal
   
 }
 
-class JuliaFractal {
-  protected int width, height;
+class JuliaFractal extends Fractal {
   protected double xs,xl,ys,yl;
   protected Complex initC;
   protected int ek;
@@ -175,7 +185,8 @@ class JuliaFractal {
   protected JuliaFractal() {}
   
   public JuliaFractal(int wid, int hgt, double xmin, double xmax, double ymin, double ymax, int escapeTime, Complex c) {
-    width = wid; height = hgt; xs = xmin; xl = xmax; ys = ymin; yl = ymax; initC = c; ek = escapeTime;
+    super(wid,hgt);
+    xs = xmin; xl = xmax; ys = ymin; yl = ymax; initC = c; ek = escapeTime;
     oxs = xs; oxl = xl; oys = ys; oyl = yl;
     oInitC = initC;
     print("\n init viewport:" + xs + "," + ys + "," + xl + "," + yl);
@@ -244,6 +255,15 @@ class JuliaFractal {
   }
 }
 
+class Fractal {
+  // the view window size
+  protected int width, height;
+  protected Fractal() {}
+  protected Fractal(int wd, int ht) {
+    width = wd; height = ht;
+  }
+}
+
 class Complex {
   public double r;
   public double i;
@@ -285,5 +305,27 @@ class Complex {
   public String toString() {
     String ext = i >= 0 ? "+" : " ";
     return r + ext + i + "i";
+  }
+}
+
+class Point2D {
+  public double x;
+  public double y;
+  
+  protected Point2D() {
+  }
+  
+  public Point2D(double _x, double _y) {
+    x = _x; y = _y;
+  }
+  
+  public Point2D(Point2D pt) {
+    x = pt.x; y = pt.y;
+  }
+  
+  public double distanceTo(Point2D pt) {
+    double xd = x - pt.x; 
+    double yd = y - pt.y;
+    return sqrt((float)(xd * xd + yd * yd));
   }
 }
