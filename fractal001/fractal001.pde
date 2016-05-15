@@ -114,7 +114,9 @@ class KochFractal extends Fractal {
   protected float stop; // the stop point
   protected KochFractal() {
   }
-  public KochFractal(Point2D ptStart, Point2D ptEnd, float angle, float stopSize) {
+  public KochFractal(int wid, int hgt, Point2D ptStart, Point2D ptEnd, float angle, float stopSize) {
+    super(wid, hgt);
+    sp = ptStart; ep = ptEnd; alpha = angle; stop = stopSize;
   }
 }
 
@@ -249,10 +251,6 @@ class JuliaFractal extends Fractal {
     return true;
   }
   
-  protected color getColor(int index) {
-    if (iColorMode == 1) return colors[index];
-    return color(index, 70,90);
-  }
 }
 
 class Fractal {
@@ -261,6 +259,11 @@ class Fractal {
   protected Fractal() {}
   protected Fractal(int wd, int ht) {
     width = wd; height = ht;
+  }
+
+  protected color getColor(int index) {
+    if (iColorMode == 1) return colors[index];
+    return color(index, 70,90);
   }
 }
 
@@ -328,4 +331,9 @@ class Point2D {
     double yd = y - pt.y;
     return sqrt((float)(xd * xd + yd * yd));
   }
+  
+  public void lineTo(Point2D pt) {
+    line((float)x,(float)y, (float)pt.x,(float)pt.y);
+  }
+  
 }
